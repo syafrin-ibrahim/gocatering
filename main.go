@@ -4,6 +4,7 @@ import (
 	///"gocatering/handler"
 
 	"gocatering/category"
+	middle "gocatering/middleware"
 	"gocatering/model"
 	"gocatering/paket"
 	"gocatering/transaction"
@@ -14,6 +15,7 @@ import (
 	"log"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -49,6 +51,10 @@ func main() {
 
 	e := echo.New()
 	route := e.Group("/")
+	route.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey:  []byte(middle.SECRET_JWT),
+		TokenLookup: "header:authorization",
+	}))
 	route.POST("regency", regencyHandler.Createregency)
 	route.GET("regency/:id", regencyHandler.GetRegencyByID)
 	route.GET("regencies", regencyHandler.GetAllRegency)
@@ -71,7 +77,10 @@ func main() {
 
 	e.POST("registrasi", userHandler.RegisterUser)
 	e.POST("login", userHandler.LoginUser)
+
 	e.POST("transaction", transHandler.CreateTransaction)
+	e.GET("transactions", transHandler.GetAllTransaction, middle.AuthMiddleware)
+	e.GET("transactions/user", transHandler.FindTransactionByUserId)
 	e.POST("transaction/notif", transHandler.GetNotif)
 	e.Start(":8000")
 

@@ -18,6 +18,70 @@ func NewTransactionHandler(s Service) *TransactionHandler {
 	return &TransactionHandler{service: s}
 }
 
+func (h *TransactionHandler) GetAllTransaction(e echo.Context) error {
+	transactions, err := h.service.GetAllTransaction()
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError,
+			helper.Apiresponse(err.Error(), http.StatusInternalServerError, "failed", nil))
+	}
+
+	var formatTransResponse []model.TransactionResponse
+	for _, transaction := range transactions {
+		transactionResponse := model.TransactionResponse{
+			TransID:       transaction.ID,
+			PaketName:     transaction.Paket.Name,
+			Quantity:      transaction.Quantity,
+			Total:         transaction.Total,
+			Location:      transaction.Location,
+			RegentName:    transaction.Regency.Name,
+			CustomerName:  transaction.User.FullName,
+			DeliveredTime: transaction.DeliverTime,
+			PaymentURL:    "",
+			Note:          transaction.Note,
+		}
+
+		formatTransResponse = append(formatTransResponse, transactionResponse)
+	}
+
+	return e.JSON(http.StatusCreated,
+		helper.Apiresponse("List of Transaction", http.StatusOK, "success", formatTransResponse))
+
+}
+
+func (h *TransactionHandler) FindTransactionByUserId(e echo.Context) error {
+	id := 1
+	transactions, err := h.service.FindTransactionByUserId(id)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError,
+			helper.Apiresponse(err.Error(), http.StatusInternalServerError, "failed", nil))
+	}
+
+	var formatTransResponse []model.TransactionResponse
+	for _, transaction := range transactions {
+		transactionResponse := model.TransactionResponse{
+			TransID:       transaction.ID,
+			PaketName:     transaction.Paket.Name,
+			Quantity:      transaction.Quantity,
+			Total:         transaction.Total,
+			Location:      transaction.Location,
+			RegentName:    transaction.Regency.Name,
+			CustomerName:  transaction.User.FullName,
+			DeliveredTime: transaction.DeliverTime,
+			PaymentURL:    "",
+			Note:          transaction.Note,
+		}
+
+		formatTransResponse = append(formatTransResponse, transactionResponse)
+		return e.JSON(http.StatusCreated,
+			helper.Apiresponse("List of Transactiio user", http.StatusOK, "success", formatTransResponse))
+
+	}
+
+	return e.JSON(http.StatusCreated,
+		helper.Apiresponse("List of Transaction", http.StatusOK, "success", formatTransResponse))
+
+}
+
 func (h *TransactionHandler) CreateTransaction(e echo.Context) error {
 
 	var trans model.Transaction

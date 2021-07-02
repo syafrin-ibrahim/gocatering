@@ -2,6 +2,7 @@ package user
 
 import (
 	"gocatering/helper"
+	"gocatering/middleware"
 	"gocatering/model"
 	"net/http"
 
@@ -63,8 +64,25 @@ func (h *UserHandler) RegisterUser(e echo.Context) error {
 		return e.JSON(http.StatusInternalServerError,
 			helper.Apiresponse(err.Error(), http.StatusInternalServerError, "failed", nil))
 	}
+
+	token, errorToken := middleware.CreateToken(newUser.ID, user.IsAdmin)
+	if errorToken != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "eror generate token",
+			"error":   errors.Error,
+		})
+	}
+	userResponse := model.UserResponse{
+		UserName: newUser.FullName,
+		Mobile:   newUser.Mobile,
+		Email:    newUser.Email,
+		Token:    token,
+	}
+
+	e.Response().Header().Set("Authorization", "Bearer "+token)
+
 	return e.JSON(http.StatusCreated,
-		helper.Apiresponse("User Registered", http.StatusOK, "success", newUser))
+		helper.Apiresponse("User Registered", http.StatusOK, "success", userResponse))
 
 }
 
@@ -99,6 +117,24 @@ func (h *UserHandler) LoginUser(e echo.Context) error {
 		})
 	}
 
+	token, errors := middleware.CreateToken(currentUser.ID, currentUser.IsAdmin)
+
+	if errors != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "error generate token",
+			"error":   err.Error(),
+		})
+	}
+
+	userResponse := model.UserResponse{
+		UserName: currentUser.FullName,
+		Mobile:   currentUser.Mobile,
+		Email:    currentUser.Email,
+		Token:    token,
+	}
+	//set header
+	e.Response().Header().Set("Authorization", "Bearer "+token)
+
 	return e.JSON(http.StatusCreated,
-		helper.Apiresponse("Login Success", http.StatusOK, "success", currentUser))
+		helper.Apiresponse("Login Success", http.StatusOK, "success", userResponse))
 }
