@@ -15,6 +15,7 @@ type Repository interface {
 	CreateImage(img *model.Image) error
 	GetImageByID(id int) (*model.Image, error)
 	DeleteImage(image *model.Image) (*model.Image, error)
+	DetailPaket(id int) (*model.Paket, error)
 }
 
 type PaketRepository struct {
@@ -45,6 +46,18 @@ func (r *PaketRepository) GetPaketByID(id int) (*model.Paket, error) {
 	var paket model.Paket
 	err := r.conn.Where("id=?", id).First(&paket).Error
 
+	if err != nil {
+
+		return nil, err
+	}
+
+	return &paket, nil
+
+}
+
+func (r *PaketRepository) DetailPaket(id int) (*model.Paket, error) {
+	var paket model.Paket
+	err := r.conn.Preload("Image").Find(&paket, id).Error
 	if err != nil {
 
 		return nil, err

@@ -14,6 +14,7 @@ type Service interface {
 	DeletePaket(id int) (*model.Paket, error)
 	CreateImage(a *model.Image) error
 	DeleteImage(id int) (*model.Image, error)
+	DetailPaket(id int) (*model.Paket, error)
 }
 
 type PaketService struct {
@@ -30,6 +31,10 @@ func (s *PaketService) CreatePaket(paket *model.Paket) error {
 
 func (s *PaketService) GetPaketByID(id int) (*model.Paket, error) {
 	return s.repository.GetPaketByID(id)
+}
+
+func (s *PaketService) DetailPaket(id int) (*model.Paket, error) {
+	return s.repository.DetailPaket(id)
 }
 
 func (s *PaketService) GetAllPaket() ([]*model.Paket, error) {

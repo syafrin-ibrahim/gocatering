@@ -9,8 +9,9 @@ import (
 type Repository interface {
 	RegisterUser(user *model.User) error
 	FindUserByEmail(email string) (*model.User, error)
+	FindUserById(id int) (*model.User, error)
 
-	//UpdateUser(id int, user *model.User) error
+	UpdateUser(id int, user *model.User) error
 }
 
 type UserRepository struct {
@@ -36,14 +37,25 @@ func (r *UserRepository) FindUserByEmail(email string) (*model.User, error) {
 
 	return &user, nil
 }
+func (r *UserRepository) FindUserById(id int) (*model.User, error) {
+	var user model.User
+	err := r.conn.Where("id=?", id).Find(&user).Error
 
-// func (r *UserRepository) UpdateUser(id int, user *model.User) error {
-// 	var fUser model.User
-// 	err := r.conn.Find(&fUser, id).Error
-// 	if err != nil {
-// 		return err
+	if err != nil {
 
-// 	}
+		return nil, err
+	}
 
-// 	return r.conn.Model(&fUser).Updates(&user).Error
-// }
+	return &user, nil
+}
+
+func (r *UserRepository) UpdateUser(id int, user *model.User) error {
+	var fUser model.User
+	err := r.conn.Find(&fUser, id).Error
+	if err != nil {
+		return err
+
+	}
+
+	return r.conn.Model(&fUser).Updates(&user).Error
+}

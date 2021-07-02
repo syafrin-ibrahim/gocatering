@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
@@ -49,8 +50,12 @@ func (h *TransactionHandler) GetAllTransaction(e echo.Context) error {
 }
 
 func (h *TransactionHandler) FindTransactionByUserId(e echo.Context) error {
-	id := 1
-	transactions, err := h.service.FindTransactionByUserId(id)
+	user := e.Get("user").(*jwt.Token)
+
+	claims := user.Claims.(jwt.MapClaims)
+	userId := claims["user_id"].(float64)
+
+	transactions, err := h.service.FindTransactionByUserId(int(userId))
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError,
 			helper.Apiresponse(err.Error(), http.StatusInternalServerError, "failed", nil))
@@ -163,7 +168,7 @@ func (h *TransactionHandler) CreateTransaction(e echo.Context) error {
 		RegentName:    regency.Name,
 		CustomerName:  user.FullName,
 		DeliveredTime: newTrans.DeliverTime,
-		PaymentURL:    paymentUrl,
+		PaymentURL:    newTrans.PaymentUrl,
 		Note:          newTrans.Note,
 	}
 

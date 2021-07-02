@@ -54,6 +54,31 @@ func (h *PaketHandler) GetPaketByID(e echo.Context) error {
 		helper.Apiresponse("Paket Found", http.StatusOK, "success", res))
 }
 
+func (h *PaketHandler) DetailPaket(e echo.Context) error {
+	id, _ := strconv.Atoi(e.Param("id"))
+	paket, err := h.PaketService.DetailPaket(id)
+
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError,
+			helper.Apiresponse(err.Error(), http.StatusInternalServerError, "failed", nil))
+	}
+	if paket == nil {
+		return e.JSON(http.StatusNotFound,
+			helper.Apiresponse(err.Error(), http.StatusNotFound, "Paket Not Found", nil))
+	}
+
+	paketResponse := model.DetailPaketResponse{
+		ID:          paket.ID,
+		Name:        paket.Name,
+		Price:       paket.Price,
+		Description: paket.Description,
+		Discount:    paket.Discount,
+		Image:       paket.Image,
+	}
+	response := helper.Apiresponse("paket "+paket.Name, http.StatusOK, "success", paketResponse)
+	return e.JSON(http.StatusOK, response)
+}
+
 func (h *PaketHandler) GetAllPaket(e echo.Context) error {
 
 	res, err := h.PaketService.GetAllPaket()

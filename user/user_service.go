@@ -5,7 +5,8 @@ import "gocatering/model"
 type Service interface {
 	RegisterUser(user *model.User) error
 	FindUserByEmail(email string) (*model.User, error)
-	//UpdateUser(id int, a *model.User) error
+	FindUserById(id int) (*model.User, error)
+	UpdateUser(id int, a *model.User) error
 	//CreateUser(user *model.User) error
 }
 
@@ -25,7 +26,11 @@ func (s *UserService) FindUserByEmail(email string) (*model.User, error) {
 	return s.repository.FindUserByEmail(email)
 
 }
+func (s *UserService) FindUserById(id int) (*model.User, error) {
+	return s.repository.FindUserById(id)
 
-// func (s *UserService) UpdateUser(id int, user *model.User) error {
-// 	return s.repository.UpdateUser(id, user)
-// }
+}
+
+func (s *UserService) UpdateUser(id int, user *model.User) error {
+	return s.repository.UpdateUser(id, user)
+}

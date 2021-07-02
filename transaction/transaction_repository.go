@@ -64,7 +64,7 @@ func (r *TransactionRepository) FindTransactionById(id int) (*model.Transaction,
 func (r *TransactionRepository) FindPaketById(id int) (*model.Paket, error) {
 
 	var paket model.Paket
-	err := r.conn.Where("id=?", id).First(&paket).Error
+	err := r.conn.Where("id=?", id).Find(&paket).Error
 
 	if err != nil {
 
